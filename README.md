@@ -1,12 +1,28 @@
 # qvac-tts
 
-Terminal app that clones a voice from a WAV recording and writes synthesized speech to a WAV file. It uses [QVAC Text-to-Speech](https://docs.qvac.tether.io/sdk/ai-capabilities/text-to-speech/) with Chatterbox. English is the default. Pass `--language` for the other Chatterbox languages, including Italian.
+Terminal app that clones a voice from a WAV recording and writes synthesized speech to a WAV file. It uses a local model [QVAC Text-to-Speech](https://docs.qvac.tether.io/sdk/ai-capabilities/text-to-speech/) with Chatterbox. English is the default. Pass `--language` for the other Chatterbox languages, including Italian.
 
 ## Requirements
 
 - Node.js 22.17 or newer
 - Enough disk space for the Chatterbox models, downloaded on the first run
-- A mono WAV of clean speech, at least 5 seconds (10–15 seconds clones best). On macOS you can easily record your voice using Voice Memos and reading this text "Remember the last time you watched the morning sun rise over a quiet street? The world was still sleeping, the air felt crisp, and everything felt possible." / "Fuori dalla finestra il cielo è di un azzurro intenso. Una tazza di caffè fumante è sul tavolo, mentre il profumo del pane fresco riempie tutta la stanza. È il momento perfetto per iniziare una nuova giornata con un sorriso." should be enough to generate about 15 seconds of audio. Then drag and drop the memo into a local folder to get a .m4a audio file and convert it into 24kHz 16bit WAV format using ffmpeg (brew install ffmpeg):
+- A mono WAV of clean speech, at least 5 seconds (10–15 seconds clones best)
+
+### Recording a sample on macOS
+
+1. Open Voice Memos and read one of these scripts. Either is long enough for about 15 seconds of audio.
+
+   **English**
+
+   > Remember the last time you watched the morning sun rise over a quiet street? The world was still sleeping, the air felt crisp, and everything felt possible.
+
+   **Italian**
+
+   > Fuori dalla finestra il cielo è di un azzurro intenso. Una tazza di caffè fumante è sul tavolo, mentre il profumo del pane fresco riempie tutta la stanza. È il momento perfetto per iniziare una nuova giornata con un sorriso.
+
+2. Drag the memo into a folder to save it as a `.m4a` file.
+3. Convert it to 24 kHz, 16-bit mono WAV with ffmpeg (`brew install ffmpeg`):
+
 ```bash
 ffmpeg -i sample.m4a -ac 1 -ar 24000 -c:a pcm_s16le voice.wav
 ```
