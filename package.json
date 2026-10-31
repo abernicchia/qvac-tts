@@ -2,7 +2,7 @@
   "name": "qvac-tts",
   "version": "1.0.0",
   "private": true,
-  "description": "Clone a voice from a WAV file and synthesize speech to a WAV file with the QVAC SDK.",
+  "description": "Synthesize speech to a WAV file with the QVAC SDK, using the default voice or a cloned WAV.",
   "type": "module",
   "bin": {
     "qvac-tts": "src/cli.js"

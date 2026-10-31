@@ -1,12 +1,12 @@
 # qvac-tts
 
-Terminal app that clones a voice from a WAV recording and writes synthesized speech to a WAV file. It uses a local model [QVAC Text-to-Speech](https://docs.qvac.tether.io/sdk/ai-capabilities/text-to-speech/) with Chatterbox. English is the default. Pass `--language` for the other Chatterbox languages, including Italian.
+Terminal app that writes synthesized speech to a WAV file. It uses a local model [QVAC Text-to-Speech](https://docs.qvac.tether.io/sdk/ai-capabilities/text-to-speech/) with Chatterbox. Omit `--voice` to use the model's built-in default voice, or pass a WAV recording to clone one. English is the default. Pass `--language` for the other Chatterbox languages, including Italian.
 
 ## Requirements
 
 - Node.js 22.17 or newer
 - Enough disk space for the Chatterbox models, downloaded on the first run
-- A mono WAV of clean speech, at least 5 seconds (10–15 seconds clones best)
+- To clone a voice: a mono WAV of clean speech, at least 5 seconds (10–15 seconds clones best). This is not required for the default voice.
 
 ### Recording a sample on macOS
 
@@ -37,16 +37,17 @@ npm install
 ## Usage
 
 ```bash
-npm start -- --voice voice.wav --text "Hello from the cloned voice." --output hello.wav
-npm start -- --voice voice.wav --language it --text "Ciao dalla voce clonata." --output ciao.wav
+npm start -- --text "Hello from the default voice." --output hello.wav
+npm start -- --voice voice.wav --text "Hello from the cloned voice." --output cloned.wav
+npm start -- --language it --text "Ciao dalla voce predefinita." --output ciao.wav
 ```
 
 The same command is available as `node src/cli.js`. After `npm install`, `npx qvac-tts` works too.
 
 ```bash
-node src/cli.js --voice voice.wav --text-file script.txt --output script.wav
+node src/cli.js --text-file script.txt --output script.wav
 node src/cli.js --voice voice.wav "Hello from the cloned voice."
-echo "Hello from the cloned voice." | node src/cli.js --voice voice.wav --output hello.wav
+echo "Hello from the default voice." | node src/cli.js --output hello.wav
 ```
 
 `--language` sets the spoken language. The default is `en`, which uses the English model. Any other Chatterbox code (`it`, `es`, `fr`, `de`, and the rest listed by `--help`) uses the multilingual model. Japanese (`ja`) and Chinese (`zh`) also download a tokenizer on the first run.

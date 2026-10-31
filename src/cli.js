@@ -9,16 +9,18 @@ import { inspectWav, assertCloneableVoice, writeWav } from './wav.js'
 const CHATTERBOX_SAMPLE_RATE = 24000
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 
-const HELP = `qvac-tts — clone a voice from a WAV and write synthesized speech to a WAV
+const HELP = `qvac-tts — write synthesized speech to a WAV, optionally cloning a voice
 
 Usage:
+  qvac-tts --text <sentence> [--output <file.wav>]
   qvac-tts --voice <file.wav> --text <sentence> [--output <file.wav>]
   qvac-tts --voice <file.wav> --text-file <file.txt> [--output <file.wav>]
-  qvac-tts --voice <file.wav> <sentence> [--output <file.wav>]
+  qvac-tts <sentence> [--output <file.wav>]
 
 Options:
-  -v, --voice <file.wav>      Reference recording to clone. Mono WAV, at least 5 seconds
-                              of clean speech (10–15 seconds works best).
+  -v, --voice <file.wav>      Optional reference recording to clone. Mono WAV, at least
+                              5 seconds of clean speech (10–15 seconds works best).
+                              When omitted, the model's built-in default voice is used.
   -t, --text <sentence>       Text to speak.
   -f, --text-file <file>      Read the text to speak from a UTF-8 file.
   -o, --output <file.wav>     Output WAV. Default: tts-output.wav
@@ -171,11 +173,6 @@ async function main() {
     printHelp()
     return
   }
-  if (!values.voice) {
-    fail('Missing --voice <file.wav>.')
-    printHelp()
-    return
-  }
 
   const threads = Number(values.threads)
   if (!Number.isInteger(threads) || threads < 1) {
@@ -183,15 +180,20 @@ async function main() {
     return
   }
 
-  const voicePath = resolve(values.voice)
+  // Without --voice, Chatterbox keeps the voice baked into the model.
+  const voicePath = values.voice ? resolve(values.voice) : undefined
   const outputPath = resolve(values.output)
   let text
   try {
-    const voice = inspectWav(readVoice(voicePath))
-    assertCloneableVoice(voice)
-    console.error(
-      `▸ Voice: ${voicePath} (${voice.durationSeconds.toFixed(1)}s, ${voice.sampleRate} Hz, ${voice.bits}-bit mono)`
-    )
+    if (voicePath) {
+      const voice = inspectWav(readVoice(voicePath))
+      assertCloneableVoice(voice)
+      console.error(
+        `▸ Voice: ${voicePath} (${voice.durationSeconds.toFixed(1)}s, ${voice.sampleRate} Hz, ${voice.bits}-bit mono)`
+      )
+    } else {
+      console.error('▸ Voice: default (built into the model)')
+    }
     text = (await resolveText(values, positionals)).trim()
   } catch (error) {
     fail(error instanceof Error ? error.message : String(error))
@@ -264,7 +266,8 @@ async function main() {
       modelSrc: selection.modelSrc,
       modelConfig: {
         ttsEngine: 'chatterbox',
-        referenceAudioSrc: voicePath,
+        // Omit the reference recording so the model uses its built-in voice.
+        ...(voicePath ? { referenceAudioSrc: voicePath } : {}),
         streamChunkTokens: 25,
         streamFirstChunkTokens: 10,
         cfmSteps: 1,
